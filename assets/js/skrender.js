@@ -440,7 +440,11 @@ function buildLiquidEngine(liquidContext, resolveFile, assetOrigin) {
     try {
       const r = await engine.parseAndRender(`{{ ${expr} }}`, ctx);
       const t = (r || '').trim();
-      if (isDotted)    return t;              // dotted: empty means unset
+      // dotted: empty means unset. Return undefined (Jekyll's nil), not '':
+      // an empty string is truthy in Liquid, so `aspect=include.aspect` would
+      // otherwise make `{% if include.aspect %}` true downstream and emit
+      // style="aspect-ratio: ;".
+      if (isDotted)    return t === '' ? undefined : t;
       return t !== '' ? t : expr;             // plain word: empty → use as literal
     } catch { return isPlainWord ? expr : ''; }
   }
@@ -471,7 +475,8 @@ function buildLiquidEngine(liquidContext, resolveFile, assetOrigin) {
 
     const includeObj = {};
     for (const [k, v] of Object.entries(params)) {
-      includeObj[k] = await evalLiquidValue(v, ctx);
+      const value = await evalLiquidValue(v, ctx);
+      if (value !== undefined) includeObj[k] = value;
     }
     ctx.push({ include: includeObj });
     let rendered;

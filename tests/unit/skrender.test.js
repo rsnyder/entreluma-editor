@@ -233,6 +233,26 @@ describe('skrender: unpublished branch media', () => {
 });
 
 
+describe('skrender: unset include parameters', () => {
+  it('passes an unset include.* reference through as nil, so no empty aspect-ratio style is emitted', async () => {
+    await loadClassicLibs();
+    const {renderPost} = await import('/assets/js/skrender.js');
+    const files = {
+      '_layouts/post.html': '<html><head></head><body>{{ content }}</body></html>',
+      '_includes/outer.html': '{%- include inner.html src=include.src aspect=include.aspect -%}',
+      '_includes/inner.html': '<iframe src="{{ include.src }}"{% if include.aspect or include.extra_style %} style="aspect-ratio: {{ include.aspect }};"{% endif %}></iframe>',
+    };
+    const render = async tag => (await renderPost({path:'_posts/t.md', content:'---\nlayout: post\n---\n'+tag,
+      context:{config:{}, assetOrigin:'https://x.example', baseurl:'', resolveFile: async p => files[p] ?? null}})).html;
+    const without = await render('{% include outer.html src="https://v.example/a" %}');
+    assert.ok(without.includes('<iframe src="https://v.example/a"'));
+    assert.ok(!without.includes('aspect-ratio'));
+    const withAspect = await render('{% include outer.html src="https://v.example/a" aspect="0.75" %}');
+    assert.ok(withAspect.includes('style="aspect-ratio: 0.75;"'));
+  });
+});
+
+
 describe('skrender: undeclared publication URL viewer fallback', () => {
   it('loads YouTube viewers and their host from the standard runtime while keeping repository images pinned', async () => {
     await loadClassicLibs();

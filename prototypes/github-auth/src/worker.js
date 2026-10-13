@@ -95,6 +95,11 @@ function secure(response, editor = false, localViewer = false, assetOrigin = '',
       headers.set('Content-Security-Policy', headers.get('Content-Security-Policy')
         .replace('sandbox allow-scripts', 'sandbox allow-same-origin allow-scripts')
         .replace("frame-ancestors 'self'", `frame-ancestors ${frameAncestor}`));
+      // Viewer components learn their embedder's origin from document.referrer
+      // and post height/dialog messages only to it. Without a referrer they
+      // fall back to their own origin and every message is dropped. Send only
+      // the origin (never the preview URL, which carries a render id).
+      headers.set('Referrer-Policy', 'strict-origin');
     }
   }
   headers.set('Permissions-Policy' , 'camera=(), microphone=(), geolocation=()');

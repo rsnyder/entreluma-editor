@@ -287,6 +287,8 @@ test('the dedicated preview origin serves only the preview frame, with a real or
     assert.ok(!policy.includes('allow-top-navigation'));
     assert.match(policy, /frame-ancestors https:\/\/editor\.example(?:;|$)/);
     assert.match(policy, /frame-src https:\/\/editor\.example\/assets\/components\/ https:/);
+    // Viewer components derive their message target from document.referrer.
+    assert.equal(response.headers.get('Referrer-Policy'), 'strict-origin');
   }
   // Nothing else is reachable on this host: no API, no editor app, no components.
   for (const path of ['/', '/editor/', '/editor/app.js', '/api/session', '/assets/components/image.html']) {

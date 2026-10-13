@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Publication preview</title></head><body>
+<script>
+// This document is always sandboxed by its response policy, including when
+// opened directly. It receives rendered HTML only from its embedding editor.
+(() => {
+  const renderId = new URL(location.href).searchParams.get('render');
+  if (parent === window || !renderId) return;
+  const receive = event => {
+    if (event.source !== parent || event.data?.kind !== 'sk-preview-document' ||
+        event.data.renderId !== renderId || typeof event.data.html !== 'string') return;
+    removeEventListener('message', receive);
+    document.open(); document.write(event.data.html); document.close();
+  };
+  addEventListener('message', receive);
+  parent.postMessage({kind:'sk-preview-document-ready', renderId}, '*');
+})();
+</script></body></html>

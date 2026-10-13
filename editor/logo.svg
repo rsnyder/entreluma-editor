@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="235 146 784 784" role="img" aria-labelledby="title desc">
+  <title id="title">Entreluma circular symbol</title>
+  <desc id="desc">A navy circular outline surrounding three blue horizontal bands and a sweeping teal ribbon.</desc>
+  <defs>
+    <linearGradient id="top-blue" gradientUnits="userSpaceOnUse" x1="374" y1="380" x2="658" y2="380">
+      <stop offset="0" stop-color="#88BFEF"/>
+      <stop offset="0.34" stop-color="#3884CD"/>
+      <stop offset="0.70" stop-color="#164E96"/>
+      <stop offset="1" stop-color="#002769"/>
+    </linearGradient>
+    <linearGradient id="middle-blue" gradientUnits="userSpaceOnUse" x1="374" y1="530" x2="558" y2="530">
+      <stop offset="0" stop-color="#8FC5F0"/>
+      <stop offset="0.42" stop-color="#2D7ACA"/>
+      <stop offset="1" stop-color="#002769"/>
+    </linearGradient>
+    <linearGradient id="bottom-blue" gradientUnits="userSpaceOnUse" x1="546" y1="690" x2="871" y2="690">
+      <stop offset="0" stop-color="#388BD8"/>
+      <stop offset="0.40" stop-color="#1C60AE"/>
+      <stop offset="1" stop-color="#002769"/>
+    </linearGradient>
+    <linearGradient id="teal" gradientUnits="userSpaceOnUse" x1="374" y1="741" x2="879" y2="322">
+      <stop offset="0" stop-color="#00AEA0"/>
+      <stop offset="0.55" stop-color="#00B29F"/>
+      <stop offset="1" stop-color="#00B4A2"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="627" cy="538.5" r="381" fill="#fff"/>
+  <circle id="circle" cx="627" cy="538.5" r="365.5" fill="none" stroke="#002769" stroke-width="31"/>
+  <g id="symbol">
+    <path id="top-bar" fill="url(#top-blue)" d="M424 331 H684 C650 356 628 391 600 430 H424 C396.4 430 374 408 374 380.5 C374 353 396.4 331 424 331 Z"/>
+    <path id="middle-bar-left" fill="url(#middle-blue)" d="M423 484 H563 L491 582 H423 C396 582 374 560 374 533 C374 506 396 484 423 484 Z"/>
+    <path id="middle-bar-right" fill="#002769" d="M743 484 H801.5 C828.3 484 850 505.7 850 532.5 C850 559.3 828.3 581 801.5 581 H672 Z"/>
+    <path id="bottom-bar" fill="url(#bottom-blue)" d="M632 638 H820 C848.2 638 871 660.8 871 689 C871 717.2 848.2 740 820 740 H546 C576 719 606 676 632 638 Z"/>
+    <path id="diagonal-ribbon" fill="url(#teal)" d="M424.5 640 H435 C465 640 488 624 505 600 L633 422 C687 347 730 322 789 322 H828 C856.2 322 879 344.8 879 373 C879 401.2 856.2 424 828 424 H801 C772 424 748 439 728 466 L571 684 C542 722 504 741 456 741 H424.5 C396.6 741 374 718.4 374 690.5 C374 662.6 396.6 640 424.5 640 Z"/>
+  </g>
+</svg>

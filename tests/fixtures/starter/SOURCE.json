@@ -1,0 +1,6 @@
+{
+  "repository": "rsnyder/entreluma",
+  "note": "Publishing runtime copied from the local Entreluma working tree on 2026-09-11. Historical author pages remain solely as editor test fixtures; no committed Entreluma revision is claimed.",
+  "editorSource": "rsnyder/storykit-editor working tree, including uncommitted preview improvements, 2026-09-11",
+  "mapSourceCommit": "6d03cbfc2beea171a58355ad52dd475b29dfaf5c"
+}

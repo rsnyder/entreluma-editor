@@ -1,0 +1,70 @@
+{
+  "description": "Embed-bearing files driven by tools/render_regression.py (WP-1.1). Payload for each is {o:'rsnyder', r:'entreluma', ref:'main', p:<path>}. tags = count of `{% include embed/` occurrences in the source (informational).",
+  "entries": [
+    {
+      "slug": "monument-valley",
+      "path": "_posts/2026-01-10-monument-valley.md",
+      "tags": 4
+    },
+    {
+      "slug": "action-links",
+      "path": "_admin/2026-02-15-entreluma-action-links.md",
+      "tags": 2
+    },
+    {
+      "slug": "formatting-tips",
+      "path": "_admin/2026-02-15-entreluma-formatting-tips.md",
+      "tags": 3
+    },
+    {
+      "slug": "iframe-viewer",
+      "path": "_admin/2026-02-15-entreluma-iframe-viewer.md",
+      "tags": 2
+    },
+    {
+      "slug": "image-compare-viewer",
+      "path": "_admin/2026-02-15-entreluma-image-compare-viewer.md",
+      "tags": 7
+    },
+    {
+      "slug": "image-viewer",
+      "path": "_admin/2026-02-15-entreluma-image-viewer.md",
+      "tags": 8
+    },
+    {
+      "slug": "map-viewer",
+      "path": "_admin/2026-02-15-entreluma-map-viewer.md",
+      "tags": 8
+    },
+    {
+      "slug": "troubleshooting",
+      "path": "_admin/2026-02-15-entreluma-troubleshooting.md",
+      "tags": 1
+    },
+    {
+      "slug": "viewers-overview",
+      "path": "_admin/2026-02-15-entreluma-viewers-overview.md",
+      "tags": 1
+    },
+    {
+      "slug": "vis-network-viewer",
+      "path": "_admin/2026-02-15-entreluma-vis-network-viewer.md",
+      "tags": 2
+    },
+    {
+      "slug": "youtube-viewer",
+      "path": "_admin/2026-02-15-entreluma-youtube-viewer.md",
+      "tags": 8
+    },
+    {
+      "slug": "authoring-a-visual-narrative",
+      "path": "_admin/2026-07-06-entreluma-authoring-a-visual-narrative.md",
+      "tags": 29
+    },
+    {
+      "slug": "wc-header-fixture",
+      "path": "_admin/2026-07-07-entreluma-regression-fixture-wc-header.md",
+      "note": "wc: shorthand in image.path front matter + plain Markdown image (refactor-content.html branch)"
+    }
+  ]
+}

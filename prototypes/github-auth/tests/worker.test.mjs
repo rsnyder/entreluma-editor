@@ -273,3 +273,27 @@ test('publication script origins apply only inside the response-sandboxed previe
   }
   assert.equal(editor.headers.get('X-Frame-Options'),'DENY');
 });
+
+test('the dedicated preview origin serves only the preview frame, with a real origin framed by the editor alone', async () => {
+  const h = harness('https://editor.example');
+  h.env.PREVIEW_ORIGIN = 'https://preview.example';
+  const call = (path, init = {}) => h.worker.fetch(new Request(`https://preview.example${path}`, init), h.env);
+  for (const path of ['/editor/preview-frame.html', '/editor/preview-frame']) {
+    const response = await call(path);
+    const policy = response.headers.get('Content-Security-Policy');
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('X-Frame-Options'), null);
+    assert.match(policy, /sandbox allow-same-origin allow-scripts allow-popups allow-forms/);
+    assert.ok(!policy.includes('allow-top-navigation'));
+    assert.match(policy, /frame-ancestors https:\/\/editor\.example(?:;|$)/);
+    assert.match(policy, /frame-src https:\/\/editor\.example\/assets\/components\/ https:/);
+  }
+  // Nothing else is reachable on this host: no API, no editor app, no components.
+  for (const path of ['/', '/editor/', '/editor/app.js', '/api/session', '/assets/components/image.html']) {
+    assert.equal((await call(path)).status, 404, path);
+  }
+  assert.equal((await call('/editor/preview-frame.html', { method: 'POST' })).status, 404);
+  // The editor origin keeps the opaque-origin policy.
+  const editorFrame = await h.request('/editor/preview-frame.html');
+  assert.ok(!editorFrame.headers.get('Content-Security-Policy').includes('allow-same-origin'));
+});

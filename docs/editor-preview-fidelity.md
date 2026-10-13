@@ -91,3 +91,23 @@ The preview implementation and its tests were carried over into Entreluma with
 updated namespaces and the current publishing runtime. Historical deployment
 identifiers are not Entreluma deployments. See [migration notes](migration.md)
 for scope and the root README for validation commands.
+
+## Preview origin
+
+On `editor.entreluma.org` the publication preview frame is loaded from the
+dedicated origin `https://preview.entreluma.org` (`PREVIEW_ORIGIN` in
+`wrangler.production.jsonc`) instead of an opaque sandboxed origin. Nested
+third-party embeds that need storage or cookies (for example the Internet
+Archive book reader) therefore behave as they do on the published site.
+
+- The preview host serves only `/editor/preview-frame(.html)`; it has no API,
+  session cookies (the editor's cookies are `__Host-` scoped), or editor app.
+- Its CSP is `sandbox allow-same-origin allow-scripts …` with
+  `frame-ancestors` limited to the editor origin, so top navigation stays
+  blocked and only the editor can frame it.
+- Other hosts (local demo, tests) keep the opaque-origin sandbox, and
+  `allow-same-origin` is never applied to `srcdoc` or same-origin frames.
+- Preview storage is shared across essays on that origin and is not private
+  to one document.
+- Deploying creates the DNS record and certificate for `preview.entreluma.org`
+  in the Cloudflare zone; no registrar (Squarespace) change is needed.

@@ -19,6 +19,7 @@ import {
   debounce,
   renderDiagnosticsPanel,
   createPreviewPane,
+  previewOriginFor,
 } from '../../editor/preview.js';
 
 // ── test helpers ────────────────────────────────────────────────────────
@@ -500,5 +501,15 @@ describe('preview publication refresh and lazy diagnostics', () => {
       await waitFor(()=>requests.length===2);
       assert.equal(requests[1].refresh,true);
     } finally {pane.destroy();mount.remove();}
+  });
+});
+
+
+describe('preview: dedicated preview origin', () => {
+  it('maps the production editor host to the preview host and leaves other hosts opaque', () => {
+    assert.equal(previewOriginFor({hostname: 'editor.entreluma.org'}), 'https://preview.entreluma.org');
+    assert.equal(previewOriginFor({hostname: '127.0.0.1'}), null);
+    assert.equal(previewOriginFor({hostname: 'preview.entreluma.org'}), null);
+    assert.equal(previewOriginFor(null), null);
   });
 });

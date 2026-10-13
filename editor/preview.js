@@ -157,6 +157,17 @@ const SKRENDER_MODULE_CANDIDATES = [
 // Sandbox attrs copied verbatim from preview/index.html's #__preview-frame.
 // Opaque origin prevents rendered document scripts from accessing auth or drafts.
 const SANDBOX_ATTRS = 'allow-scripts allow-popups allow-forms allow-modals allow-downloads';
+// A publication preview served from the dedicated preview origin gets a real
+// origin (cross-origin to the editor), so nested third-party embeds can use
+// storage and cookies. Never add allow-same-origin to a frame whose document
+// comes from the editor's own origin (srcdoc or same-origin fallback).
+const ORIGIN_SANDBOX_ATTRS = SANDBOX_ATTRS + ' allow-same-origin';
+const PREVIEW_ORIGINS = { 'editor.entreluma.org': 'https://preview.entreluma.org' };
+
+/** Dedicated preview origin for this editor host, or null (opaque fallback). */
+export function previewOriginFor(loc) {
+  return PREVIEW_ORIGINS[loc?.hostname] || null;
+}
 
 const DEFAULT_DEBOUNCE_MS = 1000;
 
@@ -820,19 +831,29 @@ export function createPreviewPane({
       // srcdoc inherits the editor's script allowlist. A separate document
       // keeps publication scripts in their own response-sandboxed policy.
       const renderId = crypto.randomUUID();
+      const frameURL = new URL(`./preview-frame.html?render=${renderId}`, import.meta.url);
+      const previewOrigin = previewOriginFor(window.location);
+      if (previewOrigin) {
+        const hosted = new URL(frameURL.pathname + frameURL.search, previewOrigin);
+        frameURL.href = hosted.href;
+      }
+      const frameOrigin = previewOrigin || '*';
       const ready = event => {
         if (event.source !== iframe.contentWindow || event.data?.kind !== 'sk-preview-document-ready' || event.data.renderId !== renderId) return;
+        if (previewOrigin && event.origin !== previewOrigin) return;
         window.removeEventListener('message', ready);
-        iframe.contentWindow.postMessage({kind:'sk-preview-document', renderId, html:documentHTML}, '*');
+        iframe.contentWindow.postMessage({kind:'sk-preview-document', renderId, html:documentHTML}, frameOrigin);
       };
       window.addEventListener('message', ready);
       releaseFrameHandshake = () => window.removeEventListener('message', ready);
       iframe.dataset.previewSource = documentHTML;
       iframe.removeAttribute('srcdoc');
-      iframe.src = new URL(`./preview-frame.html?render=${renderId}`, import.meta.url).href;
+      iframe.setAttribute('sandbox', previewOrigin ? ORIGIN_SANDBOX_ATTRS : SANDBOX_ATTRS);
+      iframe.src = frameURL.href;
     } else {
       delete iframe.dataset.previewSource;
       iframe.removeAttribute('src');
+      iframe.setAttribute('sandbox', SANDBOX_ATTRS);
       iframe.srcdoc = documentHTML;
     }
 

@@ -60,7 +60,7 @@ function redirect(location, cookies = []) {
   for (const value of cookies) headers.append('Set-Cookie', value);
   return new Response(null, { status: 303, headers });
 }
-function secure(response, editor = false, localViewer = false, assetOrigin = '', previewFrame = false) {
+function secure(response, editor = false, localViewer = false, assetOrigin = '', previewFrame = false, frameAncestor = '') {
   const result = new Response(response.body, response);
   const headers = result.headers;
   headers.set('Cache-Control', 'no-store');
@@ -87,6 +87,15 @@ function secure(response, editor = false, localViewer = false, assetOrigin = '',
     if (assetOrigin) headers.set('Content-Security-Policy', headers.get('Content-Security-Policy')
       .replace('script-src https:', `script-src ${assetOrigin}/assets/js/ https:`)
       .replace('frame-src https:', `frame-src ${assetOrigin}/assets/components/ https:`));
+    if (frameAncestor) {
+      // Dedicated preview origin: a real origin, so third-party embeds that
+      // need storage and cookies (e.g. the Internet Archive reader) can run.
+      // The browser still isolates it from the editor origin and its session;
+      // only the editor may frame it. Top navigation stays blocked.
+      headers.set('Content-Security-Policy', headers.get('Content-Security-Policy')
+        .replace('sandbox allow-scripts', 'sandbox allow-same-origin allow-scripts')
+        .replace("frame-ancestors 'self'", `frame-ancestors ${frameAncestor}`));
+    }
   }
   headers.set('Permissions-Policy' , 'camera=(), microphone=(), geolocation=()');
   return result;
@@ -406,8 +415,16 @@ export function createWorker(network = (...args) => fetch(...args), options = {}
   return {
     async fetch(request, env) {
       try {
-        const path = new URL(request.url).pathname;
-        const response = secure(await route(request, env), path.startsWith('/editor/'), /^\/assets\/components\/(?:image|map)(?:\.html)?$/.test(path), new URL(request.url).origin, /^\/editor\/preview-frame(?:\.html)?$/.test(path));
+        const requestURL = new URL(request.url);
+        const path = requestURL.pathname;
+        if (env.PREVIEW_ORIGIN && requestURL.origin === env.PREVIEW_ORIGIN) {
+          // The preview host serves exactly one public document. It has no API,
+          // session, or editor application, and the editor origin stays the
+          // source of the viewer components and scripts it loads.
+          if (!['GET', 'HEAD'].includes(request.method) || !/^\/editor\/preview-frame(?:\.html)?$/.test(path)) fail(404, 'route', 'Not found.');
+          return secure(await env.ASSETS.fetch(request), false, false, env.APP_ORIGIN, true, env.APP_ORIGIN);
+        }
+        const response = secure(await route(request, env), path.startsWith('/editor/'), /^\/assets\/components\/(?:image|map)(?:\.html)?$/.test(path), requestURL.origin, /^\/editor\/preview-frame(?:\.html)?$/.test(path));
         if (path.startsWith('/assets/js/') && response.ok) response.headers.set('Access-Control-Allow-Origin', '*');
         return response;
       }

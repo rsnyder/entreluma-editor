@@ -19,9 +19,17 @@ export function attachPreviewResources({ frame, generation, resources, host = wi
   if (assigned.size > 50 || total > MAX_TOTAL) throw new Error('Preview resource limit exceeded.');
   let disposed = false;
   const sent = new Set();
+  // An opaque (sandboxed, same-site) frame reports origin 'null'. A frame on
+  // the dedicated preview origin reports that origin, which must match exactly.
+  const frameOrigin = () => {
+    try {
+      const origin = new URL(frame.src, host.location?.href).origin;
+      return origin === host.location?.origin ? 'null' : origin;
+    } catch { return 'null'; }
+  };
   async function receive(event) {
     const data = event.data;
-    if (disposed || event.source !== frame.contentWindow || event.origin !== 'null' ||
+    if (disposed || event.source !== frame.contentWindow || event.origin !== frameOrigin() ||
         data?.kind !== 'sk-preview-resource-ready' || data.version !== RESOURCE_PROTOCOL ||
         data.generation !== generation || !assigned.has(data.resourceId) || sent.has(data.resourceId)) return;
     sent.add(data.resourceId);

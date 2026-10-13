@@ -10,6 +10,7 @@
   },
   "vars": {
     "APP_ORIGIN": "https://editor.entreluma.org",
+    "PREVIEW_ORIGIN": "https://preview.entreluma.org",
     "GITHUB_CLIENT_ID": "Ov23liZbMEQx4vvyGdoJ",
     "GITHUB_SCOPE": "repo",
     "EDITOR_ONLY": "true"
@@ -36,6 +37,10 @@
   "routes": [
     {
       "pattern": "editor.entreluma.org",
+      "custom_domain": true
+    },
+    {
+      "pattern": "preview.entreluma.org",
       "custom_domain": true
     }
   ],

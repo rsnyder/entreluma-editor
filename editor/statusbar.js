@@ -94,13 +94,34 @@ export function createStatusBar({ mount, bus } = {}) {
       bus.dispatchEvent(new CustomEvent('audit:open'));
     }
   });
+  // Split-view scroll sync toggle (bus 'scrollsync:toggle' — app.js owns the
+  // pref; it answers with 'scrollsync:changed'). Hidden outside Split mode.
+  const syncEl = el('button', 'status-item status-lint-btn status-scrollsync-btn');
+  syncEl.type = 'button';
+  syncEl.id = 'status-scrollsync';
+  syncEl.setAttribute('aria-pressed', 'false');
+  syncEl.setAttribute('title', 'Make the editor and preview scroll together (Split view)');
+  syncEl.textContent = 'Sync scroll · off';
+  syncEl.addEventListener('click', () => {
+    if (bus && typeof bus.dispatchEvent === 'function') {
+      bus.dispatchEvent(new CustomEvent('scrollsync:toggle'));
+    }
+  });
+  const onScrollSyncChanged = (e) => {
+    const on = !!(e.detail && e.detail.enabled);
+    syncEl.setAttribute('aria-pressed', String(on));
+    syncEl.textContent = `Sync scroll · ${on ? 'on' : 'off'}`;
+  };
+  if (bus && typeof bus.addEventListener === 'function') {
+    bus.addEventListener('scrollsync:changed', onScrollSyncChanged);
+  }
   const cursorEl = el('span', 'status-item');
   cursorEl.id = 'status-cursor';
   cursorEl.textContent = 'Ln 1, Col 1';
   const wordEl = el('span', 'status-item');
   wordEl.id = 'status-wordcount';
   wordEl.textContent = '0 words';
-  right.append(lintEl, sep(), cursorEl, sep(), wordEl);
+  right.append(syncEl, sep(), lintEl, sep(), cursorEl, sep(), wordEl);
 
   mount.append(left, right);
 

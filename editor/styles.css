@@ -845,6 +845,9 @@ a.icon-btn { text-decoration: none; }
   text-underline-offset: 3px;
 }
 .status-lint-btn:hover { color: var(--sk-text); }
+.status-scrollsync-btn[aria-pressed="true"] { color: var(--sk-text); font-weight: 600; }
+body:not([data-mode="split"]) .status-scrollsync-btn,
+body:not([data-mode="split"]) .status-scrollsync-btn + .status-sep { display: none; }
 
 /* Brand mark in the top bar */
 .brand { display: inline-flex; align-items: center; gap: 8px; }

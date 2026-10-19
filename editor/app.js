@@ -624,8 +624,9 @@ function refreshPreviewForCurrentMode() {
   renderPreviewNow(editorHandle.getContent());
 }
 
-// ── Split-view scroll sync (editor/scrollsync.js; default on, palette
-//    toggle). Anchor-interpolated: exact at headings/viewers, proportional
+// ── Split-view scroll sync (editor/scrollsync.js; default OFF — re-renders
+//    after edits made the panes jump; opt in via the status-bar toggle or
+//    palette). Anchor-interpolated: exact at headings/viewers, proportional
 //    between them; silently inactive when mapping isn't possible. ──────────
 const scrollSyncState = {
   map: null, lock: null, lockTimer: 0, detach: null,
@@ -633,7 +634,14 @@ const scrollSyncState = {
 };
 
 function scrollSyncEnabled() {
-  return appState.prefs.scrollSync !== false && appState.mode === 'split';
+  return appState.prefs.scrollSync === true && appState.mode === 'split';
+}
+
+function toggleScrollSync() {
+  appState.prefs.scrollSync = appState.prefs.scrollSync !== true;
+  savePrefs();
+  emit('scrollsync:changed', { enabled: appState.prefs.scrollSync === true });
+  showToast({ message: `Scroll sync ${appState.prefs.scrollSync === true ? 'on' : 'off'}.`, level: 'success' });
 }
 
 function scrollSyncLock(side) {
@@ -953,6 +961,7 @@ function wireStatusBar() {
   if (mount) {
     try {
       statusBar = statusbar.createStatusBar({ mount, bus });
+      emit('scrollsync:changed', { enabled: appState.prefs.scrollSync === true });
     } catch (error) {
       console.error('[entreluma-editor] statusbar failed to mount', error);
     }
@@ -1098,6 +1107,7 @@ function wireToasts() {
   bus.addEventListener('doc:saved', refreshBadge);
   bus.addEventListener('sync:status', refreshBadge);
   bus.addEventListener('audit:open', () => openAuditPanel());
+  bus.addEventListener('scrollsync:toggle', () => toggleScrollSync());
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1816,11 +1826,7 @@ function buildCommandRegistry() {
       } },
 
     { id: 'view.scrollsync', label: 'Toggle split-view scroll sync', group: 'View',
-      run: () => {
-        appState.prefs.scrollSync = appState.prefs.scrollSync === false;
-        savePrefs();
-        showToast({ message: `Scroll sync ${appState.prefs.scrollSync === false ? 'off' : 'on'}.`, level: 'success' });
-      } },
+      run: () => toggleScrollSync() },
 
     { id: 'sync.panel', label: 'Open sync panel', group: 'Sync', run: () => openSyncPanel() },
     { id: 'sync.commit', label: 'Commit', group: 'Sync', when: hasBoundDoc,
